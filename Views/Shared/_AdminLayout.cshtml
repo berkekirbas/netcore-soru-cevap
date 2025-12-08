@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            padding-top: 56px;
+            z-index: 1000;
+        }
+        .sidebar .nav-link {
+            color: #adb5bd;
+            padding: 12px 20px;
+            border-bottom: 1px solid #495057;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: #fff;
+            background-color: #495057;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .navbar {
+            margin-left: 250px;
+            background-color: #fff !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="text-center text-white p-3">
+            <h5>Soru Cevap Portalı</h5>
+            <small>Admin Panel</small>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Admin" asp-action="Index">
+                    <i class="fas fa-home me-2"></i> Kontrol Paneli
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="AdminCategory" asp-action="Index">
+                    <i class="fas fa-folder me-2"></i> Kategoriler
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="AdminQuestion" asp-action="Index">
+                    <i class="fas fa-question-circle me-2"></i> Sorular
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="AdminAnswer" asp-action="Index">
+                    <i class="fas fa-comments me-2"></i> Cevaplar
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="AdminUser" asp-action="Index">
+                    <i class="fas fa-users me-2"></i> Kullanıcılar
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <span class="navbar-text ms-auto">
+                <i class="fas fa-user me-2"></i>
+                @User.Identity?.Name
+            </span>
+            <form asp-controller="Account" asp-action="Logout" method="post" class="ms-3">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-sign-out-alt me-1"></i> Çıkış
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        @RenderBody()
+    </main>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                ToastNotification.success('@TempData["SuccessMessage"]');
+            });
+        </script>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                ToastNotification.error('@TempData["ErrorMessage"]');
+            });
+        </script>
+    }
+
+    @if (TempData["WarningMessage"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                ToastNotification.warning('@TempData["WarningMessage"]');
+            });
+        </script>
+    }
+
+    @if (TempData["InfoMessage"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                ToastNotification.info('@TempData["InfoMessage"]');
+            });
+        </script>
+    }
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+

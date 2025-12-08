@@ -1,0 +1,165 @@
+@model IEnumerable<SoruCevapPortal.Models.Answer>
+@{
+    ViewData["Title"] = "Cevaplar";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Cevaplar</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Yeni Cevap
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>İçerik</th>
+                            <th>Soru</th>
+                            <th>Kullanıcı</th>
+                            <th>Onay</th>
+                            <th>Aktif</th>
+                            <th>Oluşturulma</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>@(item.Content.Length > 50 ? item.Content.Substring(0, 50) + "..." : item.Content)</td>
+                                <td>@item.Question?.Title</td>
+                                <td>@item.User?.Username</td>
+                                <td>
+                                    <span class="badge @(item.IsApproved ? "bg-success" : "bg-warning") approval-badge-@item.Id">
+                                        @(item.IsApproved ? "Onaylı" : "Onay Bekliyor")
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success">Aktif</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Pasif</span>
+                                    }
+                                </td>
+                                <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info" title="Detay">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="Düzenle">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-success toggle-approval" data-id="@item.Id" title="@(item.IsApproved ? "Onayı Kaldır" : "Onayla")">
+                                        <i class="fas fa-@(item.IsApproved ? "check-circle" : "clock")"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger delete-answer" data-id="@item.Id" title="Sil">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-comments"></i>
+                    <h4>Henüz cevap bulunmuyor</h4>
+                    <p>İlk cevabı oluşturmak için yukarıdaki "Yeni Cevap" butonuna tıklayın.</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i> Cevap Oluştur
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.toggle-approval').click(function() {
+                var id = $(this).data('id');
+                var button = $(this);
+                LoadingOverlay.show();
+
+                $.ajax({
+                    url: '@Url.Action("ToggleApproval", "AdminAnswer")',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function(response) {
+                        LoadingOverlay.hide();
+                        if (response.success) {
+                            var badge = $('.approval-badge-' + id);
+                            if (response.isApproved) {
+                                badge.removeClass('bg-warning').addClass('bg-success').text('Onaylı');
+                                button.html('<i class="fas fa-check-circle"></i>');
+                                button.attr('title', 'Onayı Kaldır');
+                                ToastNotification.success('Cevap onaylandı.');
+                            } else {
+                                badge.removeClass('bg-success').addClass('bg-warning').text('Onay Bekliyor');
+                                button.html('<i class="fas fa-clock"></i>');
+                                button.attr('title', 'Onayla');
+                                ToastNotification.success('Cevap onayı kaldırıldı.');
+                            }
+                        } else {
+                            ToastNotification.error(response.message);
+                        }
+                    },
+                    error: function() {
+                        LoadingOverlay.hide();
+                        ToastNotification.error('Bir hata oluştu.');
+                    }
+                });
+            });
+
+            $('.delete-answer').click(function() {
+                var id = $(this).data('id');
+                if (confirm('Bu cevabı silmek istediğinize emin misiniz?')) {
+                    LoadingOverlay.show();
+                    $.ajax({
+                        url: '@Url.Action("Delete", "AdminAnswer")',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function(response) {
+                            LoadingOverlay.hide();
+                            if (response.success) {
+                                ToastNotification.success(response.message);
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 1000);
+                            } else {
+                                ToastNotification.error(response.message);
+                            }
+                        },
+                        error: function() {
+                            LoadingOverlay.hide();
+                            ToastNotification.error('Bir hata oluştu.');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}
+

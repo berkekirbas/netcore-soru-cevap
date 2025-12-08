@@ -1,0 +1,88 @@
+@model SoruCevapPortal.Models.Answer
+@{
+    ViewData["Title"] = "Cevap Detayı";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Cevap Detayı</h2>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                <i class="fas fa-edit me-1"></i> Düzenle
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Geri
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Cevap Detayları</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>İçerik:</strong>
+                        <p class="mt-2">@Model.Content</p>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Soru:</strong> @Model.Question?.Title</p>
+                            <p><strong>Kullanıcı:</strong> @Model.User?.Username</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Onay Durumu:</strong> 
+                                @if (Model.IsApproved)
+                                {
+                                    <span class="badge bg-success">Onaylı</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">Onay Bekliyor</span>
+                                }
+                            </p>
+                            <p><strong>Durum:</strong> 
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">Aktif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Pasif</span>
+                                }
+                            </p>
+                            <p><strong>Oluşturulma:</strong> @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</p>
+                            @if (Model.UpdatedAt.HasValue)
+                            {
+                                <p><strong>Güncellenme:</strong> @Model.UpdatedAt.Value.ToString("dd.MM.yyyy HH:mm")</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Question != null)
+            {
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">İlgili Soru</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>@Model.Question.Title</h6>
+                        <p class="text-muted">@Model.Question.Content</p>
+                        <a asp-controller="AdminQuestion" asp-action="Details" asp-route-id="@Model.Question.Id" class="btn btn-sm btn-info">
+                            Soru Detayına Git
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+

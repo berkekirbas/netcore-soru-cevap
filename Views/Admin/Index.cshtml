@@ -1,0 +1,97 @@
+@{
+    ViewData["Title"] = "Kontrol paneli";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4">Kontrol paneli</h2>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Toplam Kategori</h6>
+                            <h2>@ViewBag.TotalCategories</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-folder fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Toplam Soru</h6>
+                            <h2>@ViewBag.TotalQuestions</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-question-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Toplam Cevap</h6>
+                            <h2>@ViewBag.TotalAnswers</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-comments fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Toplam Kullanıcı</h6>
+                            <h2>@ViewBag.TotalUsers</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Aktif Sorular</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-success">@ViewBag.ActiveQuestions</h3>
+                    <p class="text-muted">Aktif durumda olan soru sayısı</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Onay Bekleyen Cevaplar</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-warning">@ViewBag.UnapprovedAnswers</h3>
+                    <p class="text-muted">Onay bekleyen cevap sayısı</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

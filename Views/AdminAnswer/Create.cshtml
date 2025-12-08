@@ -1,0 +1,68 @@
+@model SoruCevapPortal.Models.Answer
+@{
+    ViewData["Title"] = "Yeni Cevap";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <h2>Yeni Cevap</h2>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="Create">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="mb-3">
+                    <label asp-for="Content" class="form-label"></label>
+                    <textarea asp-for="Content" class="form-control" rows="8"></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="QuestionId" class="form-label">Soru</label>
+                            <select asp-for="QuestionId" class="form-select" asp-items="ViewBag.Questions">
+                                <option value="">-- Soru Seçin --</option>
+                            </select>
+                            <span asp-validation-for="QuestionId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="UserId" class="form-label">Kullanıcı</label>
+                            <select asp-for="UserId" class="form-select" asp-items="ViewBag.Users">
+                                <option value="">-- Kullanıcı Seçin --</option>
+                            </select>
+                            <span asp-validation-for="UserId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsApproved" class="form-check-input" />
+                            <label asp-for="IsApproved" class="form-check-label">Onaylı</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsActive" class="form-check-input" checked />
+                            <label asp-for="IsActive" class="form-check-label">Aktif</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                    <a asp-action="Index" class="btn btn-secondary">İptal</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+
+

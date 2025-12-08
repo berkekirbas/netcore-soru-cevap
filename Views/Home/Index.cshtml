@@ -1,0 +1,105 @@
+﻿@model IEnumerable<SoruCevapPortal.Models.Question>
+@{
+    ViewData["Title"] = "Ana Sayfa";
+    var categories = ViewBag.Categories as IEnumerable<SoruCevapPortal.Models.Category>;
+    var selectedCategoryId = ViewBag.SelectedCategoryId as int?;
+}
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Kategoriler</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="@Url.Action("Index", "Home")" class="list-group-item list-group-item-action @(selectedCategoryId == null ? "active" : "")">
+                    <i class="fas fa-th me-2"></i>Tüm Sorular
+                    <span class="badge bg-secondary float-end">@Model.Count()</span>
+                </a>
+                @if (categories != null)
+                {
+                    @foreach (var category in categories)
+                    {
+                        var categoryQuestionCount = Model.Count(q => q.CategoryId == category.Id);
+                        <a href="@Url.Action("Index", "Home", new { categoryId = category.Id })"
+                           class="list-group-item list-group-item-action @(selectedCategoryId == category.Id ? "active" : "")">
+                            <i class="fas fa-folder me-2"></i>@category.Name
+                            <span class="badge bg-secondary float-end">@categoryQuestionCount</span>
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas fa-question-circle me-2 text-primary"></i>
+                @if (selectedCategoryId.HasValue)
+                {
+                    var selectedCategory = categories?.FirstOrDefault(c => c.Id == selectedCategoryId.Value);
+                    <text>@selectedCategory?.Name</text>
+                }
+                else
+                {
+                    <text>Tüm Sorular</text>
+                }
+            </h2>
+            <span class="badge bg-info fs-6">@Model.Count() Soru</span>
+        </div>
+
+        @if (Model.Any())
+        {
+            @foreach (var question in Model)
+            {
+                var answerCount = question.Answers?.Count ?? 0;
+                var isAnswered = question.Answers?.Any(a => a.IsApproved) ?? false;
+
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2 text-center border-end">
+                                <div class="mb-2">
+                                    <i class="fas fa-eye text-muted"></i>
+                                    <span class="ms-1">@question.ViewCount</span>
+                                </div>
+                                <div class="mb-2">
+                                    <i class="fas fa-comments @(isAnswered ? "text-success" : "text-muted")"></i>
+                                    <span class="ms-1 @(isAnswered ? "text-success fw-bold" : "")">@answerCount</span>
+                                </div>
+                            </div>
+                            <div class="col-md-10">
+                                <h5 class="card-title">
+                                    <a href="@Url.Action("Details", "Question", new { id = question.Id })" class="text-decoration-none text-dark">
+                                        @question.Title
+                                    </a>
+                                </h5>
+                                <p class="card-text text-muted">
+                                    @(question.Content.Length > 150 ? question.Content.Substring(0, 150) + "..." : question.Content)
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge bg-primary">@question.Category?.Name</span>
+                                    </div>
+                                    <div class="text-muted small">
+                                        <i class="fas fa-user me-1"></i>@question.User?.Username
+                                        <i class="fas fa-clock ms-3 me-1"></i>@question.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle fa-3x mb-3"></i>
+                <h4>Henüz soru bulunmuyor</h4>
+                <p>Bu kategoride henüz soru sorulmamış.</p>
+            </div>
+        }
+    </div>
+</div>
