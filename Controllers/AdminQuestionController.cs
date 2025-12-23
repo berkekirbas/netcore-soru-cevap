@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +12,12 @@ namespace SoruCevapPortal.Controllers;
 public class AdminQuestionController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public AdminQuestionController(IUnitOfWork unitOfWork)
+    public AdminQuestionController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
     {
         _unitOfWork = unitOfWork;
+        _userManager = userManager;
     }
 
     public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
@@ -39,10 +42,10 @@ public class AdminQuestionController : Controller
     public async Task<IActionResult> Create()
     {
         var categories = await _unitOfWork.Categories.GetActiveCategoriesAsync();
-        var users = await _unitOfWork.Users.GetActiveUsersAsync();
+        var users = await _userManager.Users.Where(u => u.IsActive).ToListAsync();
         
         ViewBag.Categories = new SelectList(categories, "Id", "Name");
-        ViewBag.Users = new SelectList(users, "Id", "Username");
+        ViewBag.Users = new SelectList(users, "Id", "UserName");
         return View();
     }
 
@@ -71,9 +74,9 @@ public class AdminQuestionController : Controller
             }
         }
         var categories = await _unitOfWork.Categories.GetActiveCategoriesAsync();
-        var users = await _unitOfWork.Users.GetActiveUsersAsync();
+        var users = await _userManager.Users.Where(u => u.IsActive).ToListAsync();
         ViewBag.Categories = new SelectList(categories, "Id", "Name", question.CategoryId);
-        ViewBag.Users = new SelectList(users, "Id", "Username", question.UserId);
+        ViewBag.Users = new SelectList(users, "Id", "UserName", question.UserId);
         return View(question);
     }
 
@@ -86,9 +89,9 @@ public class AdminQuestionController : Controller
             return NotFound();
         }
         var categories = await _unitOfWork.Categories.GetActiveCategoriesAsync();
-        var users = await _unitOfWork.Users.GetActiveUsersAsync();
+        var users = await _userManager.Users.Where(u => u.IsActive).ToListAsync();
         ViewBag.Categories = new SelectList(categories, "Id", "Name", question.CategoryId);
-        ViewBag.Users = new SelectList(users, "Id", "Username", question.UserId);
+        ViewBag.Users = new SelectList(users, "Id", "UserName", question.UserId);
         return View(question);
     }
 
@@ -122,9 +125,9 @@ public class AdminQuestionController : Controller
             }
         }
         var categories = await _unitOfWork.Categories.GetActiveCategoriesAsync();
-        var users = await _unitOfWork.Users.GetActiveUsersAsync();
+        var users = await _userManager.Users.Where(u => u.IsActive).ToListAsync();
         ViewBag.Categories = new SelectList(categories, "Id", "Name", question.CategoryId);
-        ViewBag.Users = new SelectList(users, "Id", "Username", question.UserId);
+        ViewBag.Users = new SelectList(users, "Id", "UserName", question.UserId);
         return View(question);
     }
 
@@ -172,4 +175,3 @@ public class AdminQuestionController : Controller
         }
     }
 }
-
