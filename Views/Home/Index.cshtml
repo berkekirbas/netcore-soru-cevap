@@ -3,103 +3,205 @@
     ViewData["Title"] = "Ana Sayfa";
     var categories = ViewBag.Categories as IEnumerable<SoruCevapPortal.Models.Category>;
     var selectedCategoryId = ViewBag.SelectedCategoryId as int?;
+    var isHomePage = selectedCategoryId == null;
 }
 
-<div class="row">
-    <div class="col-md-3">
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Kategoriler</h5>
+@if (isHomePage)
+{
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center position-relative">
+            <h1 class="hero-title">Merak Ettiğiniz Her Şeyi Sorun</h1>
+            <p class="hero-subtitle">Binlerce soru ve cevapla dolu topluluğumuza katılın</p>
+            
+            <form asp-action="Index" method="get" class="d-flex justify-content-center">
+                <div class="search-box">
+                    <i class="fas fa-search text-muted"></i>
+                    <input type="text" name="search" placeholder="Soru ara..." />
+                    <button type="submit">Ara</button>
+                </div>
+            </form>
+            
+            <div class="row justify-content-center mt-5">
+                <div class="col-auto">
+                    <div class="d-flex gap-4 text-white">
+                        <div class="text-center">
+                            <div class="fs-3 fw-bold">@Model.Count()</div>
+                            <small class="opacity-75">Soru</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="fs-3 fw-bold">@Model.Sum(q => q.Answers?.Count ?? 0)</div>
+                            <small class="opacity-75">Cevap</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="fs-3 fw-bold">@(categories?.Count() ?? 0)</div>
+                            <small class="opacity-75">Kategori</small>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="list-group list-group-flush">
-                <a href="@Url.Action("Index", "Home")" class="list-group-item list-group-item-action @(selectedCategoryId == null ? "active" : "")">
-                    <i class="fas fa-th me-2"></i>Tüm Sorular
-                    <span class="badge bg-secondary float-end">@Model.Count()</span>
+        </div>
+    </section>
+}
+
+<div class="container py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card-custom p-4 mb-4">
+                <h6 class="sidebar-title">Kategoriler</h6>
+                
+                <a href="@Url.Action("Index", "Home")" class="category-card d-block text-decoration-none @(selectedCategoryId == null ? "active" : "")">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-medium text-dark"><i class="fas fa-th me-2 text-primary"></i>Tüm Sorular</span>
+                        <span class="badge bg-primary rounded-pill">@Model.Count()</span>
+                    </div>
                 </a>
+                
                 @if (categories != null)
                 {
                     @foreach (var category in categories)
                     {
                         var categoryQuestionCount = Model.Count(q => q.CategoryId == category.Id);
-                        <a href="@Url.Action("Index", "Home", new { categoryId = category.Id })"
-                           class="list-group-item list-group-item-action @(selectedCategoryId == category.Id ? "active" : "")">
-                            <i class="fas fa-folder me-2"></i>@category.Name
-                            <span class="badge bg-secondary float-end">@categoryQuestionCount</span>
+                        var categoryColors = new[] { "#667eea", "#11998e", "#f093fb", "#f5576c", "#00b4db" };
+                        var colorIndex = category.Id % categoryColors.Length;
+                        
+                        <a href="@Url.Action("Index", "Home", new { categoryId = category.Id })" 
+                           class="category-card d-block text-decoration-none @(selectedCategoryId == category.Id ? "active" : "")">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-medium text-dark">
+                                    <i class="fas fa-folder me-2" style="color: @categoryColors[colorIndex]"></i>@category.Name
+                                </span>
+                                <span class="badge rounded-pill" style="background: @categoryColors[colorIndex]20; color: @categoryColors[colorIndex]">@categoryQuestionCount</span>
+                            </div>
                         </a>
                     }
                 }
             </div>
-        </div>
-    </div>
 
-    <div class="col-md-9">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>
-                <i class="fas fa-question-circle me-2 text-primary"></i>
-                @if (selectedCategoryId.HasValue)
-                {
-                    var selectedCategory = categories?.FirstOrDefault(c => c.Id == selectedCategoryId.Value);
-                    <text>@selectedCategory?.Name</text>
-                }
-                else
-                {
-                    <text>Tüm Sorular</text>
-                }
-            </h2>
-            <span class="badge bg-info fs-6">@Model.Count() Soru</span>
-        </div>
-
-        @if (Model.Any())
-        {
-            @foreach (var question in Model)
+            @if (User.Identity?.IsAuthenticated == true)
             {
-                var answerCount = question.Answers?.Count ?? 0;
-                var isAnswered = question.Answers?.Any(a => a.IsApproved) ?? false;
+                <div class="card-custom p-4">
+                    <h6 class="sidebar-title">Hızlı İşlemler</h6>
+                    <a asp-controller="Question" asp-action="Create" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-plus me-2"></i>Soru Sor
+                    </a>
+                    <a asp-controller="Account" asp-action="Profile" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-user me-2"></i>Profilim
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="card-custom p-4 text-center">
+                    <i class="fas fa-user-circle fa-3x text-primary mb-3"></i>
+                    <h6>Topluluğa Katıl</h6>
+                    <p class="text-muted small">Soru sormak ve cevap vermek için giriş yapın.</p>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-sm w-100 mb-2">
+                        <i class="fas fa-sign-in-alt me-2"></i>Giriş Yap
+                    </a>
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-outline-primary btn-sm w-100">
+                        <i class="fas fa-user-plus me-2"></i>Kayıt Ol
+                    </a>
+                </div>
+            }
+        </div>
 
-                <div class="card mb-3 shadow-sm">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-2 text-center border-end">
-                                <div class="mb-2">
-                                    <i class="fas fa-eye text-muted"></i>
-                                    <span class="ms-1">@question.ViewCount</span>
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="mb-1">
+                        @if (selectedCategoryId.HasValue)
+                        {
+                            var selectedCategory = categories?.FirstOrDefault(c => c.Id == selectedCategoryId.Value);
+                            <i class="fas fa-folder-open text-primary me-2"></i>@selectedCategory?.Name
+                        }
+                        else
+                        {
+                            <i class="fas fa-fire text-danger me-2"></i><text>Son Sorular</text>
+                        }
+                    </h4>
+                    <p class="text-muted mb-0 small">@Model.Count() soru bulundu</p>
+                </div>
+                
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-sort me-1"></i>Sırala
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#">En Yeni</a></li>
+                        <li><a class="dropdown-item" href="#">En Çok Görüntülenen</a></li>
+                        <li><a class="dropdown-item" href="#">En Çok Cevaplanan</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            @if (Model.Any())
+            {
+                @foreach (var question in Model)
+                {
+                    var answerCount = question.Answers?.Count ?? 0;
+                    var isAnswered = question.Answers?.Any(a => a.IsApproved) ?? false;
+
+                    <div class="question-card">
+                        <div class="row align-items-center">
+                            <div class="col-md-2 col-4 text-center mb-3 mb-md-0">
+                                <div class="stats-box mb-2">
+                                    <div class="stats-number">@answerCount</div>
+                                    <small class="text-muted">cevap</small>
                                 </div>
-                                <div class="mb-2">
-                                    <i class="fas fa-comments @(isAnswered ? "text-success" : "text-muted")"></i>
-                                    <span class="ms-1 @(isAnswered ? "text-success fw-bold" : "")">@answerCount</span>
+                                <div class="small text-muted">
+                                    <i class="fas fa-eye me-1"></i>@question.ViewCount
                                 </div>
                             </div>
-                            <div class="col-md-10">
-                                <h5 class="card-title">
-                                    <a href="@Url.Action("Details", "Question", new { id = question.Id })" class="text-decoration-none text-dark">
-                                        @question.Title
-                                    </a>
-                                </h5>
-                                <p class="card-text text-muted">
-                                    @(question.Content.Length > 150 ? question.Content.Substring(0, 150) + "..." : question.Content)
+                            <div class="col-md-10 col-8">
+                                <a asp-controller="Question" asp-action="Details" asp-route-id="@question.Id" class="question-title d-block mb-2">
+                                    @question.Title
+                                </a>
+                                <p class="text-muted mb-3 small">
+                                    @(question.Content.Length > 180 ? question.Content.Substring(0, 180) + "..." : question.Content)
                                 </p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <span class="badge bg-primary">@question.Category?.Name</span>
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span class="badge-category">@question.Category?.Name</span>
+                                        @if (isAnswered)
+                                        {
+                                            <span class="badge-category badge-answered">
+                                                <i class="fas fa-check me-1"></i>Cevaplandı
+                                            </span>
+                                        }
                                     </div>
-                                    <div class="text-muted small">
-                                        <i class="fas fa-user me-1"></i>@question.User?.Username
-                                        <i class="fas fa-clock ms-3 me-1"></i>@question.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                                    <div class="d-flex align-items-center gap-2 text-muted small">
+                                        <div class="user-avatar" style="width: 28px; height: 28px; font-size: 0.7rem;">
+                                            @(question.User?.UserName?.Substring(0, 1).ToUpper() ?? "?")
+                                        </div>
+                                        <span>@question.User?.UserName</span>
+                                        <span>•</span>
+                                        <span><i class="fas fa-clock me-1"></i>@question.CreatedAt.ToString("dd MMM yyyy")</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                }
+            }
+            else
+            {
+                <div class="card-custom">
+                    <div class="empty-state">
+                        <i class="fas fa-question-circle"></i>
+                        <h5>Henüz soru yok</h5>
+                        <p class="text-muted">Bu kategoride henüz soru sorulmamış.</p>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <a asp-controller="Question" asp-action="Create" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>İlk Soruyu Sen Sor
+                            </a>
+                        }
+                    </div>
                 </div>
             }
-        }
-        else
-        {
-            <div class="alert alert-info text-center">
-                <i class="fas fa-info-circle fa-3x mb-3"></i>
-                <h4>Henüz soru bulunmuyor</h4>
-                <p>Bu kategoride henüz soru sorulmamış.</p>
-            </div>
-        }
+        </div>
     </div>
 </div>

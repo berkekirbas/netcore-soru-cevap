@@ -1,0 +1,138 @@
+@model IEnumerable<RoleViewModel>
+@{
+    ViewData["Title"] = "Roller";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <p class="text-muted mb-0">Sistem rollerini yönetin</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Yeni Rol
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Rol Adı</th>
+                        <th>Açıklama</th>
+                        <th>Kullanıcı Sayısı</th>
+                        <th>Oluşturulma</th>
+                        <th width="150">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var role in Model)
+                    {
+                        var isSystemRole = new[] { "Admin", "User", "Moderator" }.Contains(role.Name);
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                        <i class="fas fa-user-shield"></i>
+                                    </div>
+                                    <div>
+                                        <span class="fw-semibold">@role.Name</span>
+                                        @if (isSystemRole)
+                                        {
+                                            <span class="badge bg-info ms-1">Sistem</span>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@(role.Description ?? "-")</td>
+                            <td>
+                                <a asp-action="Users" asp-route-id="@role.Id" class="text-decoration-none">
+                                    <span class="badge bg-secondary">@role.UserCount kullanıcı</span>
+                                </a>
+                            </td>
+                            <td>@role.CreatedAt.ToString("dd.MM.yyyy")</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-outline-primary" title="Düzenle">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-action="Users" asp-route-id="@role.Id" class="btn btn-outline-info" title="Kullanıcılar">
+                                        <i class="fas fa-users"></i>
+                                    </a>
+                                    @if (!isSystemRole)
+                                    {
+                                        <button type="button" class="btn btn-outline-danger" onclick="deleteRole(@role.Id, '@role.Name')" title="Sil">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rolü Sil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong id="deleteRoleName"></strong> rolünü silmek istediğinizden emin misiniz?</p>
+                <p class="text-danger small mb-0">Bu işlem geri alınamaz!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Sil</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let deleteRoleId = null;
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+        function deleteRole(id, name) {
+            deleteRoleId = id;
+            document.getElementById('deleteRoleName').textContent = name;
+            deleteModal.show();
+        }
+
+        document.getElementById('confirmDelete').addEventListener('click', async function() {
+            if (!deleteRoleId) return;
+
+            try {
+                const response = await fetch('/AdminRole/Delete/' + deleteRoleId, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                showToast('Bir hata oluştu', 'error');
+            }
+
+            deleteModal.hide();
+        });
+    </script>
+}
+

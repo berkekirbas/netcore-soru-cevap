@@ -1,0 +1,120 @@
+@model SoruCevapPortal.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "Profilim";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body text-center py-5">
+                    @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                    {
+                        <img src="@Model.ProfileImageUrl" alt="Profil" class="rounded-circle mb-3" width="150" height="150" style="object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px;">
+                            <span class="display-3">@Model.UserName.Substring(0, 1).ToUpper()</span>
+                        </div>
+                    }
+                    <h3 class="mb-1">@Model.FullName</h3>
+                    <p class="text-muted">@@@Model.UserName</p>
+                    
+                    @if (!string.IsNullOrEmpty(Model.Bio))
+                    {
+                        <p class="text-muted small">@Model.Bio</p>
+                    }
+
+                    <hr />
+
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="mb-0 text-primary">@Model.QuestionCount</h4>
+                            <small class="text-muted">Soru</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="mb-0 text-success">@Model.AnswerCount</h4>
+                            <small class="text-muted">Cevap</small>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Üyelik: @Model.MemberSince.ToString("dd MMMM yyyy")
+                    </p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <a asp-action="ChangePassword" class="btn btn-outline-warning w-100">
+                        <i class="fas fa-key me-2"></i>Şifre Değiştir
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2 text-primary"></i>Profil Bilgilerini Düzenle</h5>
+                </div>
+                <div class="card-body p-4">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-action="Profile" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserName" class="form-label"></label>
+                            <input asp-for="UserName" class="form-control" readonly />
+                            <small class="text-muted">Kullanıcı adı değiştirilemez.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label"></label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Bio" class="form-label"></label>
+                            <textarea asp-for="Bio" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Bio" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="ProfileImageUrl" class="form-label"></label>
+                            <input asp-for="ProfileImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                            <span asp-validation-for="ProfileImageUrl" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Değişiklikleri Kaydet
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

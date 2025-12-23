@@ -1,55 +1,76 @@
+@model SoruCevapPortal.ViewModels.LoginViewModel
 @{
-    ViewData["Title"] = "Admin Girişi";
-    Layout = null;
+    ViewData["Title"] = "Giriş Yap";
 }
 
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Soru Cevap Portalı</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-</head>
-<body>
-    <div class="container">
-        <div class="row justify-content-center align-items-center" style="min-height: 100vh;">
-            <div class="col-md-4">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h4>Admin Girişi</h4>
+<div class="container">
+    <div class="row justify-content-center min-vh-75 align-items-center py-5">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="login-icon mb-3">
+                            <i class="fas fa-user-circle fa-4x text-primary"></i>
+                        </div>
+                        <h2 class="fw-bold text-dark">Hoş Geldiniz</h2>
+                        <p class="text-muted">Hesabınıza giriş yapın</p>
                     </div>
-                    <div class="card-body">
-                        @if (!ViewData.ModelState.IsValid)
-                        {
-                            <div class="alert alert-danger">
-                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                                {
-                                    <p class="mb-0">@error.ErrorMessage</p>
-                                }
+
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-action="Login" method="post">
+                        <input type="hidden" asp-for="ReturnUrl" />
+                        
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="UserNameOrEmail" class="form-control" placeholder="Kullanıcı adı veya e-posta" autofocus />
+                            <label asp-for="UserNameOrEmail"><i class="fas fa-user me-2"></i>Kullanıcı Adı / E-posta</label>
+                            <span asp-validation-for="UserNameOrEmail" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Password" class="form-control" placeholder="Şifre" />
+                            <label asp-for="Password"><i class="fas fa-lock me-2"></i>Şifre</label>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input asp-for="RememberMe" class="form-check-input" />
+                                <label asp-for="RememberMe" class="form-check-label">Beni Hatırla</label>
                             </div>
-                        }
-                        <form asp-action="Login" method="post">
-                            <div class="mb-3">
-                                <label for="username" class="form-label">Kullanıcı Adı</label>
-                                <input type="text" class="form-control" id="username" name="username" required autofocus>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Şifre</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">Giriş Yap</button>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>Giriş Yap
+                        </button>
+
+                        <div class="text-center">
+                            <p class="text-muted mb-0">
+                                Hesabınız yok mu?
+                                <a asp-action="Register" class="text-primary fw-semibold text-decoration-none">Kayıt Ol</a>
+                            </p>
+                        </div>
+                    </form>
                 </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a asp-controller="Home" asp-action="Index" class="text-muted text-decoration-none">
+                    <i class="fas fa-arrow-left me-2"></i>Ana Sayfaya Dön
+                </a>
             </div>
         </div>
     </div>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

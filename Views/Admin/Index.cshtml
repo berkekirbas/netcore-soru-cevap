@@ -1,97 +1,271 @@
 @{
-    ViewData["Title"] = "Kontrol paneli";
+    ViewData["Title"] = "Dashboard";
     Layout = "_AdminLayout";
+    var recentQuestions = ViewBag.RecentQuestions as IEnumerable<SoruCevapPortal.Models.Question>;
+    var recentAnswers = ViewBag.RecentAnswers as IEnumerable<SoruCevapPortal.Models.Answer>;
 }
 
 <div class="container-fluid">
-    <h2 class="mb-4">Kontrol paneli</h2>
-
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-title">Toplam Kategori</h6>
-                            <h2>@ViewBag.TotalCategories</h2>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-folder fa-2x"></i>
-                        </div>
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card primary">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="mb-1 opacity-75 small text-uppercase">Toplam Soru</p>
+                        <h2 class="mb-0 fw-bold" data-stat="questions">@ViewBag.TotalQuestions</h2>
+                        <small class="opacity-75"><span class="text-success">@ViewBag.ActiveQuestions</span> aktif</small>
+                    </div>
+                    <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                        <i class="fas fa-question-circle fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-title">Toplam Soru</h6>
-                            <h2>@ViewBag.TotalQuestions</h2>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-question-circle fa-2x"></i>
-                        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card success">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="mb-1 opacity-75 small text-uppercase">Toplam Cevap</p>
+                        <h2 class="mb-0 fw-bold" data-stat="answers">@ViewBag.TotalAnswers</h2>
+                        <small class="opacity-75"><span class="text-warning">@ViewBag.UnapprovedAnswers</span> onay bekliyor</small>
+                    </div>
+                    <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                        <i class="fas fa-comment-dots fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-info">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-title">Toplam Cevap</h6>
-                            <h2>@ViewBag.TotalAnswers</h2>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-comments fa-2x"></i>
-                        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card warning">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="mb-1 opacity-75 small text-uppercase">Kategoriler</p>
+                        <h2 class="mb-0 fw-bold" data-stat="categories">@ViewBag.TotalCategories</h2>
+                        <small class="opacity-75">aktif kategori</small>
+                    </div>
+                    <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                        <i class="fas fa-folder-open fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-warning">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6 class="card-title">Toplam Kullanıcı</h6>
-                            <h2>@ViewBag.TotalUsers</h2>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-users fa-2x"></i>
-                        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card info">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="mb-1 opacity-75 small text-uppercase">Kullanıcılar</p>
+                        <h2 class="mb-0 fw-bold" data-stat="users">@ViewBag.TotalUsers</h2>
+                        <small class="opacity-75">kayıtlı kullanıcı</small>
+                    </div>
+                    <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                        <i class="fas fa-users fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row mt-4">
-        <div class="col-md-6">
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Aktif Sorular</h5>
-                </div>
-                <div class="card-body">
-                    <h3 class="text-success">@ViewBag.ActiveQuestions</h3>
-                    <p class="text-muted">Aktif durumda olan soru sayısı</p>
+                <div class="card-body py-3">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a asp-controller="AdminQuestion" asp-action="Create" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Yeni Soru
+                        </a>
+                        <a asp-controller="AdminCategory" asp-action="Create" class="btn btn-success">
+                            <i class="fas fa-folder-plus me-2"></i>Yeni Kategori
+                        </a>
+                        <a asp-controller="AdminUser" asp-action="Create" class="btn btn-info text-white">
+                            <i class="fas fa-user-plus me-2"></i>Yeni Kullanıcı
+                        </a>
+                        <a asp-controller="AdminAnswer" asp-action="Index" class="btn btn-warning">
+                            <i class="fas fa-clock me-2"></i>Onay Bekleyenler
+                            @if (ViewBag.UnapprovedAnswers > 0)
+                            {
+                                <span class="badge bg-danger ms-1">@ViewBag.UnapprovedAnswers</span>
+                            }
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-question-circle text-primary me-2"></i>Son Sorular</h6>
+                    <a asp-controller="AdminQuestion" asp-action="Index" class="btn btn-sm btn-outline-primary">Tümü</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (recentQuestions != null && recentQuestions.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var question in recentQuestions)
+                            {
+                                <a asp-controller="AdminQuestion" asp-action="Details" asp-route-id="@question.Id" 
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1 text-truncate" style="max-width: 300px;">@question.Title</h6>
+                                            <small class="text-muted">
+                                                <i class="fas fa-eye me-1"></i>@question.ViewCount görüntülenme
+                                            </small>
+                                        </div>
+                                        <small class="text-muted">@question.CreatedAt.ToString("dd.MM.yyyy")</small>
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <p class="mb-0">Henüz soru yok</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-comment-dots text-success me-2"></i>Son Cevaplar</h6>
+                    <a asp-controller="AdminAnswer" asp-action="Index" class="btn btn-sm btn-outline-success">Tümü</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (recentAnswers != null && recentAnswers.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var answer in recentAnswers)
+                            {
+                                <a asp-controller="AdminAnswer" asp-action="Details" asp-route-id="@answer.Id" 
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <p class="mb-1 text-truncate" style="max-width: 300px;">
+                                                @(answer.Content.Length > 80 ? answer.Content.Substring(0, 80) + "..." : answer.Content)
+                                            </p>
+                                            <small class="text-muted">
+                                                @if (answer.IsApproved)
+                                                {
+                                                    <span class="badge bg-success">Onaylı</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">Onay Bekliyor</span>
+                                                }
+                                            </small>
+                                        </div>
+                                        <small class="text-muted">@answer.CreatedAt.ToString("dd.MM.yyyy")</small>
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <p class="mb-0">Henüz cevap yok</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Activity Feed -->
+    <div class="row mt-4">
+        <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Onay Bekleyen Cevaplar</h5>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bolt text-warning me-2"></i>Canlı Aktivite
+                        <span class="badge bg-success ms-2">SignalR</span>
+                    </h6>
+                    <button id="clearActivityFeed" class="btn btn-sm btn-outline-secondary">Temizle</button>
                 </div>
                 <div class="card-body">
-                    <h3 class="text-warning">@ViewBag.UnapprovedAnswers</h3>
-                    <p class="text-muted">Onay bekleyen cevap sayısı</p>
+                    <div id="activityFeed" class="activity-feed" style="max-height: 300px; overflow-y: auto;">
+                        <div class="text-center text-muted py-3" id="noActivityMessage">
+                            <i class="fas fa-stream fa-2x mb-2"></i>
+                            <p class="mb-0">Canlı aktivite burada görünecek</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+@section Scripts {
+    <script>
+        // Activity Feed
+        const activityFeed = document.getElementById('activityFeed');
+        const noActivityMessage = document.getElementById('noActivityMessage');
+        
+        // Override SignalR handlers for dashboard
+        if (typeof connection !== 'undefined') {
+            connection.on("NewQuestion", (data) => {
+                addActivityItem('question', `Yeni soru: ${data.title}`, data.category, data.time);
+            });
+            
+            connection.on("NewAnswer", (data) => {
+                addActivityItem('answer', `Yeni cevap: ${data.questionTitle}`, '', data.time);
+            });
+            
+            connection.on("NewUser", (data) => {
+                addActivityItem('user', `Yeni kullanıcı: ${data.username}`, data.email, data.time);
+            });
+        }
+        
+        function addActivityItem(type, message, subtext, time) {
+            noActivityMessage.style.display = 'none';
+            
+            const icons = {
+                question: { icon: 'fa-question-circle', color: 'primary' },
+                answer: { icon: 'fa-comment-dots', color: 'success' },
+                user: { icon: 'fa-user-plus', color: 'info' }
+            };
+            
+            const config = icons[type] || icons.question;
+            
+            const item = document.createElement('div');
+            item.className = 'activity-item d-flex align-items-center gap-3 py-2 border-bottom animate__animated animate__fadeIn';
+            item.innerHTML = `
+                <div class="bg-${config.color} bg-opacity-10 text-${config.color} rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; flex-shrink: 0;">
+                    <i class="fas ${config.icon}"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <p class="mb-0 fw-medium">${message}</p>
+                    ${subtext ? `<small class="text-muted">${subtext}</small>` : ''}
+                </div>
+                <small class="text-muted">${time}</small>
+            `;
+            
+            activityFeed.insertBefore(item, activityFeed.firstChild);
+            
+            // Limit items
+            while (activityFeed.children.length > 20) {
+                activityFeed.removeChild(activityFeed.lastChild);
+            }
+        }
+        
+        document.getElementById('clearActivityFeed').addEventListener('click', function() {
+            activityFeed.innerHTML = `
+                <div class="text-center text-muted py-3" id="noActivityMessage">
+                    <i class="fas fa-stream fa-2x mb-2"></i>
+                    <p class="mb-0">Canlı aktivite burada görünecek</p>
+                </div>
+            `;
+        });
+    </script>
+}

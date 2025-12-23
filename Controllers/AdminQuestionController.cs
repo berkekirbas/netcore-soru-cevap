@@ -7,7 +7,7 @@ using SoruCevapPortal.Repositories;
 
 namespace SoruCevapPortal.Controllers;
 
-[Authorize(Policy = "AdminOnly")]
+[Authorize(Roles = "Admin")]
 public class AdminQuestionController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;

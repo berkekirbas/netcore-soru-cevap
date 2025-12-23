@@ -5,103 +5,394 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Admin Panel</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <style>
-        body {
-            background-color: #f4f6f9;
+        :root {
+            --sidebar-bg: #1a1d21;
+            --sidebar-hover: #2d3339;
+            --primary-color: #4f46e5;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
         }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+        }
+        
         .sidebar {
             min-height: 100vh;
-            background-color: #343a40;
+            background: var(--sidebar-bg);
             position: fixed;
             top: 0;
             left: 0;
-            width: 250px;
-            padding-top: 56px;
+            width: 260px;
+            padding-top: 0;
             z-index: 1000;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
         }
+        
+        .sidebar-brand {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .sidebar-brand h5 {
+            color: white;
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .sidebar-brand small {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.75rem;
+        }
+        
         .sidebar .nav-link {
-            color: #adb5bd;
-            padding: 12px 20px;
-            border-bottom: 1px solid #495057;
+            color: #9ca3af;
+            padding: 14px 24px;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
         }
+        
         .sidebar .nav-link:hover,
         .sidebar .nav-link.active {
             color: #fff;
-            background-color: #495057;
+            background: var(--sidebar-hover);
+            border-left-color: var(--primary-color);
         }
+        
+        .sidebar .nav-link i {
+            width: 24px;
+            text-align: center;
+        }
+        
+        .sidebar-section-title {
+            color: #6b7280;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 20px 24px 8px;
+            font-weight: 600;
+        }
+        
         .main-content {
-            margin-left: 250px;
-            padding: 20px;
+            margin-left: 260px;
+            padding: 24px;
+            min-height: 100vh;
         }
-        .navbar {
-            margin-left: 250px;
-            background-color: #fff !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        
+        .top-navbar {
+            background: white !important;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            margin-left: 260px;
+            padding: 12px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 999;
         }
+        
         .card {
             border: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+        
         .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
             font-weight: 600;
+            padding: 16px 20px;
+            border-radius: 12px 12px 0 0 !important;
+        }
+        
+        .stat-card {
+            border-radius: 16px;
+            padding: 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .stat-card.primary { background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); }
+        .stat-card.success { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
+        .stat-card.warning { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); }
+        .stat-card.danger { background: linear-gradient(135deg, #ef4444 0%, #f87171 100%); }
+        .stat-card.info { background: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%); }
+        
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        /* SignalR Connection Status */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .connection-status.connected {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .connection-status.disconnected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .connection-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .connection-status.connected .dot {
+            background: #22c55e;
+        }
+        
+        .connection-status.disconnected .dot {
+            background: #ef4444;
+        }
+        
+        @@keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .notification-dropdown {
+            width: 320px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .notification-item {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+        
+        .notification-item:hover {
+            background: #f9fafb;
+        }
+        
+        .notification-item.unread {
+            background: #eff6ff;
+        }
+        
+        .btn {
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
+        }
+        
+        .table {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .table th {
+            background: #f9fafb;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
         }
     </style>
 </head>
 <body>
     <!-- Sidebar -->
     <nav class="sidebar">
-        <div class="text-center text-white p-3">
-            <h5>Soru Cevap Portalı</h5>
-            <small>Admin Panel</small>
+        <div class="sidebar-brand">
+            <h5><i class="fas fa-graduation-cap me-2"></i>Soru Cevap</h5>
+            <small>Yönetim Paneli</small>
         </div>
+        
+        <div class="sidebar-section-title">Ana Menü</div>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link" asp-controller="Admin" asp-action="Index">
-                    <i class="fas fa-home me-2"></i> Kontrol Paneli
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")" 
+                   asp-controller="Admin" asp-action="Index">
+                    <i class="fas fa-chart-pie me-2"></i> Dashboard
+                </a>
+            </li>
+        </ul>
+        
+        <div class="sidebar-section-title">İçerik Yönetimi</div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminCategory" ? "active" : "")" 
+                   asp-controller="AdminCategory" asp-action="Index">
+                    <i class="fas fa-folder-open me-2"></i> Kategoriler
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-controller="AdminCategory" asp-action="Index">
-                    <i class="fas fa-folder me-2"></i> Kategoriler
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" asp-controller="AdminQuestion" asp-action="Index">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminQuestion" ? "active" : "")" 
+                   asp-controller="AdminQuestion" asp-action="Index">
                     <i class="fas fa-question-circle me-2"></i> Sorular
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-controller="AdminAnswer" asp-action="Index">
-                    <i class="fas fa-comments me-2"></i> Cevaplar
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminAnswer" ? "active" : "")" 
+                   asp-controller="AdminAnswer" asp-action="Index">
+                    <i class="fas fa-comment-dots me-2"></i> Cevaplar
+                </a>
+            </li>
+        </ul>
+        
+        <div class="sidebar-section-title">Kullanıcı Yönetimi</div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminUser" ? "active" : "")" 
+                   asp-controller="AdminUser" asp-action="Index">
+                    <i class="fas fa-users me-2"></i> Kullanıcılar
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-controller="AdminUser" asp-action="Index">
-                    <i class="fas fa-users me-2"></i> Kullanıcılar
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminRole" ? "active" : "")" 
+                   asp-controller="AdminRole" asp-action="Index">
+                    <i class="fas fa-user-shield me-2"></i> Roller
+                </a>
+            </li>
+        </ul>
+        
+        <div class="sidebar-section-title">Diğer</div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Index" target="_blank">
+                    <i class="fas fa-external-link-alt me-2"></i> Siteyi Görüntüle
                 </a>
             </li>
         </ul>
     </nav>
 
     <!-- Top Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light">
+    <nav class="navbar navbar-expand-lg navbar-light top-navbar">
         <div class="container-fluid">
-            <span class="navbar-text ms-auto">
-                <i class="fas fa-user me-2"></i>
-                @User.Identity?.Name
-            </span>
-            <form asp-controller="Account" asp-action="Logout" method="post" class="ms-3">
-                <button type="submit" class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-sign-out-alt me-1"></i> Çıkış
-                </button>
-            </form>
+            <div class="d-flex align-items-center">
+                <h5 class="mb-0 text-dark fw-semibold">@ViewData["Title"]</h5>
+            </div>
+            
+            <div class="d-flex align-items-center gap-3">
+                <!-- SignalR Connection Status -->
+                <div id="connectionStatus" class="connection-status disconnected">
+                    <span class="dot"></span>
+                    <span id="connectionText">Bağlanıyor...</span>
+                </div>
+                
+                <!-- Notifications -->
+                <div class="dropdown">
+                    <button class="btn btn-light position-relative" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-bell"></i>
+                        <span id="notificationBadge" class="notification-badge d-none">0</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end notification-dropdown">
+                        <div class="dropdown-header d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold">Bildirimler</span>
+                            <button id="clearNotifications" class="btn btn-sm btn-link text-muted p-0">Temizle</button>
+                        </div>
+                        <div id="notificationList">
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                                <p class="mb-0 small">Bildirim yok</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Menu -->
+                <div class="dropdown">
+                    <button class="btn btn-light d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <span>@(User.Identity?.Name?.Substring(0, 1).ToUpper())</span>
+                        </div>
+                        <span class="d-none d-md-inline">@User.Identity?.Name</span>
+                        <i class="fas fa-chevron-down small"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="fas fa-user me-2"></i>Profilim</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Çıkış Yap
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </nav>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -111,12 +402,239 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <!-- SignalR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
+    
+    <script>
+        // SignalR Connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/adminHub")
+            .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+            .build();
+        
+        let notifications = [];
+        
+        // Connection state handlers
+        connection.onreconnecting(() => {
+            updateConnectionStatus('reconnecting');
+        });
+        
+        connection.onreconnected(() => {
+            updateConnectionStatus('connected');
+            showToast('Bağlantı yeniden kuruldu', 'success');
+        });
+        
+        connection.onclose(() => {
+            updateConnectionStatus('disconnected');
+        });
+        
+        // SignalR Event Handlers
+        connection.on("NewQuestion", (data) => {
+            addNotification({
+                type: 'question',
+                icon: 'fa-question-circle',
+                color: 'primary',
+                title: 'Yeni Soru',
+                message: data.title,
+                category: data.category,
+                time: data.time,
+                link: '/AdminQuestion/Details/' + data.questionId
+            });
+            showToast(`Yeni soru: ${data.title}`, 'info');
+            updateDashboardIfVisible();
+        });
+        
+        connection.on("NewAnswer", (data) => {
+            addNotification({
+                type: 'answer',
+                icon: 'fa-comment-dots',
+                color: 'success',
+                title: 'Yeni Cevap',
+                message: data.questionTitle,
+                time: data.time,
+                link: '/AdminAnswer/Details/' + data.answerId
+            });
+            showToast(`Yeni cevap: ${data.questionTitle}`, 'success');
+            updateDashboardIfVisible();
+        });
+        
+        connection.on("NewUser", (data) => {
+            addNotification({
+                type: 'user',
+                icon: 'fa-user-plus',
+                color: 'info',
+                title: 'Yeni Kullanıcı',
+                message: `${data.username} (${data.email})`,
+                time: data.time,
+                link: '/AdminUser'
+            });
+            showToast(`Yeni kullanıcı kaydı: ${data.username}`, 'info');
+            updateDashboardIfVisible();
+        });
+        
+        connection.on("Notification", (data) => {
+            showToast(data.message, data.type);
+        });
+        
+        connection.on("AdminConnected", (username) => {
+            if (username !== '@User.Identity?.Name') {
+                showToast(`${username} admin paneline bağlandı`, 'info');
+            }
+        });
+        
+        connection.on("DashboardUpdate", (stats) => {
+            // Update dashboard stats if on dashboard page
+            updateDashboardStats(stats);
+        });
+        
+        // Start Connection
+        async function startConnection() {
+            try {
+                await connection.start();
+                updateConnectionStatus('connected');
+                console.log("SignalR Connected");
+            } catch (err) {
+                updateConnectionStatus('disconnected');
+                console.error("SignalR Connection Error:", err);
+                setTimeout(startConnection, 5000);
+            }
+        }
+        
+        startConnection();
+        
+        // UI Functions
+        function updateConnectionStatus(status) {
+            const statusEl = document.getElementById('connectionStatus');
+            const textEl = document.getElementById('connectionText');
+            
+            statusEl.className = 'connection-status ' + (status === 'connected' ? 'connected' : 'disconnected');
+            
+            switch(status) {
+                case 'connected':
+                    textEl.textContent = 'Bağlı';
+                    break;
+                case 'reconnecting':
+                    textEl.textContent = 'Yeniden bağlanıyor...';
+                    break;
+                default:
+                    textEl.textContent = 'Bağlantı kesildi';
+            }
+        }
+        
+        function addNotification(notification) {
+            notifications.unshift(notification);
+            updateNotificationUI();
+        }
+        
+        function updateNotificationUI() {
+            const badge = document.getElementById('notificationBadge');
+            const list = document.getElementById('notificationList');
+            
+            if (notifications.length > 0) {
+                badge.textContent = notifications.length;
+                badge.classList.remove('d-none');
+                
+                list.innerHTML = notifications.map((n, i) => `
+                    <a href="${n.link}" class="notification-item d-block text-decoration-none text-dark unread">
+                        <div class="d-flex gap-3">
+                            <div class="bg-${n.color} bg-opacity-10 text-${n.color} rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; flex-shrink: 0;">
+                                <i class="fas ${n.icon}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <span class="fw-semibold small">${n.title}</span>
+                                    <span class="text-muted small">${n.time}</span>
+                                </div>
+                                <p class="mb-0 small text-muted text-truncate" style="max-width: 200px;">${n.message}</p>
+                            </div>
+                        </div>
+                    </a>
+                `).join('');
+            } else {
+                badge.classList.add('d-none');
+                list.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                        <p class="mb-0 small">Bildirim yok</p>
+                    </div>
+                `;
+            }
+        }
+        
+        document.getElementById('clearNotifications').addEventListener('click', function(e) {
+            e.preventDefault();
+            notifications = [];
+            updateNotificationUI();
+        });
+        
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toastId = 'toast-' + Date.now();
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            const bgColors = {
+                success: 'bg-success',
+                error: 'bg-danger',
+                warning: 'bg-warning',
+                info: 'bg-primary'
+            };
+            
+            const toast = document.createElement('div');
+            toast.id = toastId;
+            toast.className = `toast show ${bgColors[type]} text-white`;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="toast-body d-flex align-items-center gap-2">
+                    <i class="fas ${icons[type]}"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-white ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                const el = document.getElementById(toastId);
+                if (el) el.remove();
+            }, 5000);
+        }
+        
+        function updateDashboardIfVisible() {
+            // Trigger a refresh if we're on the dashboard
+            if (window.location.pathname === '/Admin' || window.location.pathname === '/Admin/Index') {
+                // Could implement AJAX refresh here
+            }
+        }
+        
+        function updateDashboardStats(stats) {
+            // Update stat cards if they exist
+            const elements = {
+                totalQuestions: document.querySelector('[data-stat="questions"]'),
+                totalAnswers: document.querySelector('[data-stat="answers"]'),
+                totalUsers: document.querySelector('[data-stat="users"]'),
+                totalCategories: document.querySelector('[data-stat="categories"]')
+            };
+            
+            for (const [key, el] of Object.entries(elements)) {
+                if (el && stats[key] !== undefined) {
+                    el.textContent = stats[key];
+                }
+            }
+        }
+    </script>
 
     @if (TempData["SuccessMessage"] != null)
     {
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                ToastNotification.success('@TempData["SuccessMessage"]');
+                showToast('@TempData["SuccessMessage"]', 'success');
             });
         </script>
     }
@@ -125,7 +643,7 @@
     {
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                ToastNotification.error('@TempData["ErrorMessage"]');
+                showToast('@TempData["ErrorMessage"]', 'error');
             });
         </script>
     }
@@ -134,7 +652,7 @@
     {
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                ToastNotification.warning('@TempData["WarningMessage"]');
+                showToast('@TempData["WarningMessage"]', 'warning');
             });
         </script>
     }
@@ -143,7 +661,7 @@
     {
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                ToastNotification.info('@TempData["InfoMessage"]');
+                showToast('@TempData["InfoMessage"]', 'info');
             });
         </script>
     }
@@ -151,4 +669,3 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-

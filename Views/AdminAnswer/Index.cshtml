@@ -44,7 +44,7 @@
                                 <td>@item.Id</td>
                                 <td>@(item.Content.Length > 50 ? item.Content.Substring(0, 50) + "..." : item.Content)</td>
                                 <td>@item.Question?.Title</td>
-                                <td>@item.User?.Username</td>
+                                <td>@item.User?.UserName</td>
                                 <td>
                                     <span class="badge @(item.IsApproved ? "bg-success" : "bg-warning") approval-badge-@item.Id">
                                         @(item.IsApproved ? "Onaylı" : "Onay Bekliyor")

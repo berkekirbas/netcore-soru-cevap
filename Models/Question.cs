@@ -31,7 +31,7 @@ public class Question : BaseEntity
     public int ViewCount { get; set; } = 0;
     
     // Navigation properties
-    public virtual User User { get; set; } = null!;
+    public virtual ApplicationUser User { get; set; } = null!;
     public virtual Category Category { get; set; } = null!;
     public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
     public virtual ICollection<QuestionVote> QuestionVotes { get; set; } = new List<QuestionVote>();
