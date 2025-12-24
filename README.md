@@ -1,6 +1,6 @@
 # Soru Cevap Portalı - Admin Panel
 
-ASP.NET Core MVC (.NET 8) ile geliştirilmiş soru-cevap portalı admin paneli.
+ASP.NET Core MVC (.NET 7) ile geliştirilmiş soru-cevap portalı admin paneli.
 
 ## Özellikler
 
